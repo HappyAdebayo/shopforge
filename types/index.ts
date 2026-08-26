@@ -132,3 +132,26 @@ export interface CreateCategoryFormData {
   name: string;
   description?: string;
 }
+
+export type CallStatus = "ringing" | "accepted" | "rejected" | "ended";
+
+export interface Call {
+  id: number;
+  callerId: number;
+  vendorId: number;
+  status: CallStatus;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CallResponse {
+  message: string;
+  data: Call;
+}
+
+export interface CallListResponse {
+  message: string;
+  data: Call[];
+}

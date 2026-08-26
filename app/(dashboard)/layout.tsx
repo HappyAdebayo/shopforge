@@ -6,6 +6,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
+import { CallProvider } from "@/hooks/useCall";
+import IncomingCallModal from "@/components/call/IncomingCallModal";
+import ActiveCallModal from "@/components/call/ActiveCallModal";
 
 const titleMap: Record<string, string> = {
   "/admin": "Admin Overview",
@@ -63,15 +66,20 @@ export default function DashboardLayout({
   const title = titleMap[pathname] ?? "ShopForge";
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header
-          onMenuClick={() => setSidebarOpen(true)}
-          title={title}
-        />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+    <CallProvider>
+      <div className="flex h-screen overflow-hidden bg-slate-50">
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <Header
+            onMenuClick={() => setSidebarOpen(true)}
+            title={title}
+          />
+          <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+        </div>
+        {/* Real-time incoming & active call overlays */}
+        <IncomingCallModal />
+        <ActiveCallModal />
       </div>
-    </div>
+    </CallProvider>
   );
 }

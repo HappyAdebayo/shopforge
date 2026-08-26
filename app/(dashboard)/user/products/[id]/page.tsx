@@ -12,13 +12,16 @@ import {
   ShieldCheck,
   Truck,
   RotateCcw,
+  Phone,
 } from "lucide-react";
 import { productService } from "@/lib/api/product";
 import { useAuth } from "@/hooks/useAuth";
+import { useCall } from "@/hooks/useCall";
 import type { Product } from "@/types";
 
 export default function ProductDetailPage() {
   const { user } = useAuth();
+  const { startCall } = useCall();
   const params = useParams();
   const router = useRouter();
   const productId = params?.id as string;
@@ -212,21 +215,35 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Vendor Tag */}
-            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
-                  <Store size={16} />
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                  <Store size={18} />
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400">Sold by</p>
-                  <p className="text-xs font-semibold text-slate-800">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-slate-400">Sold by</p>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 font-medium px-1.5 py-0.2 rounded">
+                      Verified
+                    </span>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-800 truncate">
                     Vendor #{product.vendorId}
                   </p>
                 </div>
               </div>
-              <span className="text-xs bg-emerald-100 text-emerald-800 font-medium px-2 py-0.5 rounded">
-                Verified Vendor
-              </span>
+
+              {/* Call Vendor Action Button */}
+              <button
+                type="button"
+                onClick={() => startCall(product.vendorId, `Vendor #${product.vendorId}`)}
+                disabled={user?.id === product.vendorId}
+                title={user?.id === product.vendorId ? "You cannot call your own store" : "Call Vendor"}
+                className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all shadow-sm shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Phone size={14} />
+                <span>Call Vendor</span>
+              </button>
             </div>
           </div>
 
