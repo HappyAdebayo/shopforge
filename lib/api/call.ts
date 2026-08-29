@@ -2,8 +2,15 @@ import { callApi } from "../axios";
 import type { Call, CallResponse, CallListResponse } from "@/types";
 
 export const callService = {
-  async createCall(vendorId: number): Promise<Call> {
-    const res = await callApi.post<CallResponse>("/api/calls", { vendorId });
+  async createCall(
+    vendorId: number,
+    meta?: { callerName?: string; vendorName?: string }
+  ): Promise<Call> {
+    const res = await callApi.post<CallResponse>("/api/calls", {
+      vendorId,
+      callerName: meta?.callerName,
+      vendorName: meta?.vendorName,
+    });
     return res.data.data;
   },
 

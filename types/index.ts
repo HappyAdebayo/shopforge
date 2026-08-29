@@ -155,3 +155,54 @@ export interface CallListResponse {
   message: string;
   data: Call[];
 }
+
+export type NotificationType =
+  | "incoming_call"
+  | "call_accepted"
+  | "call_rejected"
+  | "call_missed"
+  | "vendor_application_submitted"
+  | "vendor_application_approved"
+  | "vendor_application_rejected"
+  | string;
+
+export interface Notification {
+  id: number;
+  userId: number;
+  type: NotificationType;
+  title: string;
+  message: string;
+  referenceId?: string | null;
+  isRead: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface NotificationPaginatedData {
+  notifications: Notification[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  unreadCount: number;
+}
+
+export interface NotificationListResponse {
+  message: string;
+  data: NotificationPaginatedData;
+}
+
+export interface NotificationUnreadCountResponse {
+  message: string;
+  data: {
+    unreadCount: number;
+  };
+}
+
+export interface NotificationResponse {
+  message: string;
+  data: Notification;
+}
+

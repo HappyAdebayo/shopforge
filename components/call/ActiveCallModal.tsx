@@ -116,7 +116,7 @@ export default function ActiveCallModal() {
                   <Video size={12} /> Video Call Active
                 </span>
                 <h3 className="text-lg font-bold text-slate-800 mt-1">
-                  {otherPartyName || (activeCall ? `Vendor #${activeCall.vendorId}` : "Call")}
+                  {otherPartyName || "Call in progress"}
                 </h3>
               </div>
               <div className="text-right">
@@ -276,13 +276,13 @@ export default function ActiveCallModal() {
             {/* Title and Call Status */}
             <div className="space-y-1.5 mb-5">
               <h3 className="text-xl font-bold text-slate-800 tracking-tight">
-                {otherPartyName || (activeCall ? `Vendor #${activeCall.vendorId}` : "Call")}
+                {otherPartyName || "Call in progress"}
               </h3>
 
               {isRinging && (
                 <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-indigo-600">
                   <span className="inline-block w-2 h-2 rounded-full bg-indigo-600 animate-ping" />
-                  Ringing vendor...
+                  Ringing {otherPartyName ? otherPartyName : "vendor"}...
                 </div>
               )}
 

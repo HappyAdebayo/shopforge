@@ -25,6 +25,12 @@ export const callApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// Notification service axios instance — uses Next.js rewrite proxy to avoid CORS
+export const notificationApi = axios.create({
+  baseURL: typeof window !== "undefined" ? "" : (process.env.NEXT_PUBLIC_NOTIFICATION_API_URL || "http://localhost:3005"),
+  headers: { "Content-Type": "application/json" },
+});
+
 // Attach Authorization header to vendor requests
 vendorApi.interceptors.request.use((config) => {
   const token = tokenStorage.getAccessToken();
@@ -45,6 +51,15 @@ productApi.interceptors.request.use((config) => {
 
 // Attach Authorization header to call requests
 callApi.interceptors.request.use((config) => {
+  const token = tokenStorage.getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Attach Authorization header to notification requests
+notificationApi.interceptors.request.use((config) => {
   const token = tokenStorage.getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -105,6 +120,7 @@ const setupAuthRefreshInterceptor = (apiInstance: typeof vendorApi) => {
           vendorApi.defaults.headers.common.Authorization = `Bearer ${token}`;
           productApi.defaults.headers.common.Authorization = `Bearer ${token}`;
           callApi.defaults.headers.common.Authorization = `Bearer ${token}`;
+          notificationApi.defaults.headers.common.Authorization = `Bearer ${token}`;
           processQueue(null, token);
           return apiInstance(originalRequest);
         } catch (refreshError) {
@@ -125,3 +141,5 @@ const setupAuthRefreshInterceptor = (apiInstance: typeof vendorApi) => {
 setupAuthRefreshInterceptor(vendorApi);
 setupAuthRefreshInterceptor(productApi);
 setupAuthRefreshInterceptor(callApi);
+setupAuthRefreshInterceptor(notificationApi);
+

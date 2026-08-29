@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         source: "/api/calls/:path*",
         destination: "http://localhost:3004/calls/:path*",
       },
+      {
+        source: "/api/notifications/:path*",
+        destination: "http://localhost:3005/notifications/:path*",
+      },
     ];
   },
 };

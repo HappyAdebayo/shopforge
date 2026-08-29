@@ -1,7 +1,8 @@
 "use client";
 
-import { Menu, LogOut, Bell } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import NotificationDropdown from "./NotificationDropdown";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -24,9 +25,7 @@ export default function Header({ onMenuClick, title }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="relative p-2 rounded-full text-slate-500 hover:bg-slate-100">
-          <Bell size={18} />
-        </button>
+        <NotificationDropdown />
 
         <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
           <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold uppercase">

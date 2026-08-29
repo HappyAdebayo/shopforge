@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { useAuth } from "./useAuth";
 import { callService } from "@/lib/api/call";
+import { vendorService } from "@/lib/api/vendor";
 import {
   getSocket,
   joinVendorRoom,
@@ -376,21 +377,6 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, [cleanupMediaAndPeer]);
 
-  // Duration timer when connected
-  useEffect(() => {
-    if (callStatus === "connected") {
-      setCallDuration(0);
-      durationTimerRef.current = setInterval(() => {
-        setCallDuration((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (durationTimerRef.current) {
-        clearInterval(durationTimerRef.current);
-        durationTimerRef.current = null;
-      }
-    }
-  }, [callStatus]);
-
   const clearCallState = useCallback(() => {
     if (activeCall?.id) {
       leaveCallRoom(activeCall.id);
@@ -409,24 +395,56 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({
     setErrorMessage(null);
   }, [activeCall, incomingCall, cleanupMediaAndPeer]);
 
+  // Duration timer when connected & Ringing timeout
+  useEffect(() => {
+    if (callStatus === "connected") {
+      setCallDuration(0);
+      durationTimerRef.current = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (durationTimerRef.current) {
+        clearInterval(durationTimerRef.current);
+        durationTimerRef.current = null;
+      }
+    }
+
+    if (callStatus === "calling") {
+      const ringingTimer = setTimeout(() => {
+        setErrorMessage("The vendor did not answer. Call timed out.");
+        setCallStatus("ended");
+        if (activeCall?.id) {
+          callService.endCall(activeCall.id).catch(() => {});
+        }
+        resetTimerRef.current = setTimeout(() => {
+          clearCallState();
+        }, 3000);
+      }, 40000);
+
+      return () => clearTimeout(ringingTimer);
+    }
+  }, [callStatus, activeCall?.id, clearCallState]);
+
   // Connect socket and listen for rooms & events
   useEffect(() => {
     if (!user) return;
 
     const socket = getSocket();
 
-    // Join user room
-    joinUserRoom(user.id);
-
-    // If user is a vendor or approved vendor, join vendor room
-    if (user.role === "vendor" || user.vendorStatus === "approved") {
+    const joinRooms = () => {
+      joinUserRoom(user.id);
       joinVendorRoom(user.id);
-    }
+    };
+
+    joinRooms();
+    socket.on("connect", joinRooms);
 
     const handleIncomingCall = (data: {
       callId: number;
       callerId: number;
       vendorId: number;
+      callerName?: string;
+      vendorName?: string;
       status: string;
       createdAt?: string;
     }) => {
@@ -438,7 +456,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({
         status: "ringing",
         createdAt: data.createdAt,
       });
-      setOtherPartyName(`Customer #${data.callerId}`);
+      setOtherPartyName(data.callerName || `User #${data.callerId}`);
       setCallStatus("incoming");
       joinCallRoom(data.callId);
     };
@@ -447,10 +465,17 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({
       callId: number;
       callerId: number;
       vendorId: number;
+      callerName?: string;
+      vendorName?: string;
       startedAt?: string;
     }) => {
       console.log("[Call Hook] Received call-accepted:", data);
       setCallStatus("connected");
+      if (user.id === data.callerId && data.vendorName) {
+        setOtherPartyName(data.vendorName);
+      } else if (user.id === data.vendorId && data.callerName) {
+        setOtherPartyName(data.callerName);
+      }
       setActiveCall((prev) =>
         prev
           ? { ...prev, status: "accepted", startedAt: data.startedAt }
@@ -554,6 +579,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({
     socket.on("call-ended", handleCallEnded);
 
     return () => {
+      socket.off("connect", joinRooms);
       socket.off("incoming-call", handleIncomingCall);
       socket.off("call-accepted", handleCallAccepted);
       socket.off("webrtc-signal", handleWebRTCSignal);
@@ -575,14 +601,38 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
 
+    const callerName = user.name || `User #${user.id}`;
+    let targetVendorName = vendorName;
+
+    if (!targetVendorName || targetVendorName.startsWith("Vendor #")) {
+      try {
+        const v = await vendorService.getVendorById(vendorId);
+        if (v?.businessName) {
+          targetVendorName = v.businessName;
+        } else {
+          const vu = await vendorService.getVendorByUserId(vendorId);
+          if (vu?.businessName) {
+            targetVendorName = vu.businessName;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    targetVendorName = targetVendorName || `Vendor #${vendorId}`;
+
     setErrorMessage(null);
-    setOtherPartyName(vendorName || `Vendor #${vendorId}`);
+    setOtherPartyName(targetVendorName);
     setCallStatus("calling");
 
     try {
       // Pre-warm local mic
       await initLocalAudio();
-      const call = await callService.createCall(vendorId);
+      const call = await callService.createCall(vendorId, {
+        callerName,
+        vendorName: targetVendorName,
+      });
       setActiveCall(call);
       joinCallRoom(call.id);
     } catch (err: unknown) {

@@ -15,6 +15,7 @@ import {
   Phone,
 } from "lucide-react";
 import { productService } from "@/lib/api/product";
+import { vendorService } from "@/lib/api/vendor";
 import { useAuth } from "@/hooks/useAuth";
 import { useCall } from "@/hooks/useCall";
 import type { Product } from "@/types";
@@ -30,6 +31,7 @@ export default function ProductDetailPage() {
   const isViewOnly = user?.role === "vendor" || user?.role === "admin";
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [vendorName, setVendorName] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,20 @@ export default function ProductDetailPage() {
         data.images?.find((img) => img.isPrimary)?.imageUrl ||
         data.images?.[0]?.imageUrl;
       setSelectedImage(primaryImg || null);
+
+      if (data?.vendorId) {
+        try {
+          const v = await vendorService.getVendorById(data.vendorId);
+          if (v?.businessName) {
+            setVendorName(v.businessName);
+          } else {
+            const vUser = await vendorService.getVendorByUserId(data.vendorId);
+            setVendorName(vUser?.businessName || `Vendor #${data.vendorId}`);
+          }
+        } catch {
+          setVendorName(`Vendor #${data.vendorId}`);
+        }
+      }
     } catch (err: unknown) {
       let msg = "Failed to load product details";
       if (err && typeof err === "object" && "response" in err) {
@@ -228,7 +244,7 @@ export default function ProductDetailPage() {
                     </span>
                   </div>
                   <p className="text-xs font-semibold text-slate-800 truncate">
-                    Vendor #{product.vendorId}
+                    {vendorName || `Vendor #${product.vendorId}`}
                   </p>
                 </div>
               </div>
@@ -236,13 +252,13 @@ export default function ProductDetailPage() {
               {/* Call Vendor Action Button */}
               <button
                 type="button"
-                onClick={() => startCall(product.vendorId, `Vendor #${product.vendorId}`)}
+                onClick={() => startCall(product.vendorId, vendorName || `Vendor #${product.vendorId}`)}
                 disabled={user?.id === product.vendorId}
-                title={user?.id === product.vendorId ? "You cannot call your own store" : "Call Vendor"}
+                title={user?.id === product.vendorId ? "You cannot call your own store" : `Call ${vendorName || "Vendor"}`}
                 className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all shadow-sm shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Phone size={14} />
-                <span>Call Vendor</span>
+                <span>Call {vendorName ? vendorName : "Vendor"}</span>
               </button>
             </div>
           </div>

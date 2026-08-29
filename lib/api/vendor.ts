@@ -39,4 +39,15 @@ export const vendorService = {
     const res = await vendorApi.patch(`/api/vendors/applications/${id}/reject`);
     return res.data;
   },
+
+  async getVendorById(id: number) {
+    const res = await vendorApi.get(`/api/vendors/${id}`);
+    return res.data?.data;
+  },
+
+  async getVendorByUserId(userId: number) {
+    const res = await vendorApi.get(`/api/vendors/user/${userId}`);
+    return res.data?.data;
+  },
 };
+

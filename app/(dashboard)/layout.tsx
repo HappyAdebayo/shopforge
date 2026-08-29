@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { CallProvider } from "@/hooks/useCall";
+import { NotificationProvider } from "@/hooks/useNotification";
 import IncomingCallModal from "@/components/call/IncomingCallModal";
 import ActiveCallModal from "@/components/call/ActiveCallModal";
 
@@ -66,20 +67,22 @@ export default function DashboardLayout({
   const title = titleMap[pathname] ?? "ShopForge";
 
   return (
-    <CallProvider>
-      <div className="flex h-screen overflow-hidden bg-slate-50">
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <Header
-            onMenuClick={() => setSidebarOpen(true)}
-            title={title}
-          />
-          <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+    <NotificationProvider>
+      <CallProvider>
+        <div className="flex h-screen overflow-hidden bg-slate-50">
+          <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <Header
+              onMenuClick={() => setSidebarOpen(true)}
+              title={title}
+            />
+            <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+          </div>
+          {/* Real-time incoming & active call overlays */}
+          <IncomingCallModal />
+          <ActiveCallModal />
         </div>
-        {/* Real-time incoming & active call overlays */}
-        <IncomingCallModal />
-        <ActiveCallModal />
-      </div>
-    </CallProvider>
+      </CallProvider>
+    </NotificationProvider>
   );
 }

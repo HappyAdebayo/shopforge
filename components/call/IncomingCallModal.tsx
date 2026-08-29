@@ -51,9 +51,9 @@ export default function IncomingCallModal() {
             <User size={18} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-slate-400">Caller</p>
+            <p className="text-xs font-medium text-slate-400">Customer</p>
             <p className="text-sm font-semibold text-slate-800 truncate">
-              User ID #{incomingCall.callerId}
+              {otherPartyName || `Customer #${incomingCall.callerId}`}
             </p>
           </div>
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
