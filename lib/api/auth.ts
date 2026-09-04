@@ -18,7 +18,14 @@ export const authService = {
 
   async refresh(refreshToken: string) {
     const res = await authApi.post("/api/auth/refresh", { refreshToken });
-    return res.data as { data: { token: string; refreshToken: string } };
+    const data = res.data?.data as { token: string; refreshToken: string; user?: AuthResponse["user"] };
+    if (data?.token && data?.refreshToken) {
+      tokenStorage.setTokens(data.token, data.refreshToken);
+      if (data.user) {
+        tokenStorage.setUser(data.user);
+      }
+    }
+    return res.data as { data: { token: string; refreshToken: string; user?: AuthResponse["user"] } };
   },
 
   logout() {

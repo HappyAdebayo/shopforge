@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { getErrorMessage } from "@/lib/utils";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -31,19 +32,18 @@ export default function LoginPage() {
     try {
       await login(data);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Invalid email or password";
+      const msg = getErrorMessage(err, "Invalid email or password");
       setServerError(msg);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0d1117] via-[#131921] to-[#0d1117] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center font-bold text-white text-lg">
+            <div className="w-10 h-10 bg-[#febd69] rounded-xl flex items-center justify-center font-bold text-slate-900 text-lg">
               SF
             </div>
             <span className="text-white font-bold text-2xl tracking-tight">
@@ -73,7 +73,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className={`w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  className={`w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-[#febd69] ${
                     errors.email
                       ? "border-red-400 bg-red-50"
                       : "border-slate-300"
@@ -102,7 +102,7 @@ export default function LoginPage() {
                   type={showPass ? "text" : "password"}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className={`w-full pl-9 pr-10 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  className={`w-full pl-9 pr-10 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-[#febd69] ${
                     errors.password
                       ? "border-red-400 bg-red-50"
                       : "border-slate-300"
@@ -133,7 +133,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-medium py-3 rounded-lg text-sm transition-colors mt-2"
+              className="w-full flex items-center justify-center gap-2 bg-[#febd69] hover:bg-[#f3a847] disabled:opacity-60 text-slate-900 font-semibold py-3 rounded-lg text-sm transition-colors mt-2 shadow-sm"
             >
               {isSubmitting ? (
                 <>
@@ -150,7 +150,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="text-indigo-600 font-medium hover:underline"
+              className="text-[#c45500] font-medium hover:underline"
             >
               Create one
             </Link>

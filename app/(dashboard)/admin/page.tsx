@@ -81,14 +81,19 @@ export default function AdminPage() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Welcome */}
-      <div className="bg-gradient-to-r from-red-600 to-rose-600 rounded-3xl p-6 lg:p-8 text-white shadow-sm">
+      <div className="bg-[#131921] border border-[#232f3e] rounded-2xl p-6 lg:p-8 text-white shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
-            <ShieldCheck size={30} className="text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-[#febd69] text-slate-900 flex items-center justify-center flex-shrink-0 font-black shadow-sm">
+            <ShieldCheck size={30} className="text-slate-900" />
           </div>
           <div>
-            <h2 className="text-2xl lg:text-3xl font-bold">Admin Dashboard</h2>
-            <p className="text-red-100 text-sm mt-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight">Admin Dashboard</h2>
+              <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/30">
+                Platform Admin
+              </span>
+            </div>
+            <p className="text-slate-300 text-sm">
               Welcome back, {user.name} ({user.email}). Manage platform vendors, product categories, and applications.
             </p>
           </div>

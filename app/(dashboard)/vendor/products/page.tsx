@@ -187,7 +187,7 @@ export default function VendorProductsPage() {
 
                     <div className="flex items-center gap-3 text-xs text-slate-400 mt-1.5 flex-wrap">
                       <span className="font-bold text-amber-600">
-                        ${Number(product.price).toFixed(2)}
+                        ₦{Number(product.price).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
                       </span>
                       <span>·</span>
                       <span className="flex items-center gap-1">

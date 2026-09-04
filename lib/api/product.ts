@@ -1,4 +1,4 @@
-import { productApi } from "../axios";
+import { productApi, publicProductApi } from "../axios";
 import type { Product, PaginatedProducts, CreateProductFormData } from "@/types";
 
 export interface GetProductsParams {
@@ -7,6 +7,41 @@ export interface GetProductsParams {
   page?: number;
   limit?: number;
 }
+
+// Public service – no auth token needed (storefront browsing)
+export const publicProductService = {
+  async getAll(params?: GetProductsParams): Promise<PaginatedProducts> {
+    const query = new URLSearchParams();
+    if (params?.categoryId) query.append("categoryId", params.categoryId.toString());
+    if (params?.search) query.append("search", params.search);
+    if (params?.page) query.append("page", params.page.toString());
+    if (params?.limit) query.append("limit", params.limit.toString());
+
+    const res = await publicProductApi.get<{
+      message: string;
+      data: PaginatedProducts;
+    }>(`/api/products?${query.toString()}`);
+    return res.data.data;
+  },
+
+  async getById(id: number | string): Promise<Product> {
+    const res = await publicProductApi.get<{
+      message: string;
+      data: Product;
+    }>(`/api/products/${id}`);
+    return res.data.data;
+  },
+
+  async getRelated(categoryId: number, excludeId: number, limit = 6): Promise<Product[]> {
+    const res = await publicProductApi.get<{
+      message: string;
+      data: PaginatedProducts;
+    }>(`/api/products?categoryId=${categoryId}&limit=20`);
+    const all = res.data.data?.products ?? [];
+    return all.filter((p) => p.id !== excludeId).slice(0, limit);
+  },
+};
+
 
 export const productService = {
   async getAll(params?: GetProductsParams): Promise<PaginatedProducts> {

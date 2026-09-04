@@ -35,14 +35,19 @@ export default function VendorDashboardPage() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Banner */}
-      <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-3xl p-6 lg:p-8 text-white shadow-sm">
+      <div className="bg-[#131921] border border-[#232f3e] rounded-2xl p-6 lg:p-8 text-white shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
-            <Building2 size={30} className="text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-[#febd69] text-slate-900 flex items-center justify-center flex-shrink-0 font-black shadow-sm">
+            <Building2 size={30} className="text-slate-900" />
           </div>
           <div>
-            <h2 className="text-2xl lg:text-3xl font-bold">Vendor Dashboard</h2>
-            <p className="text-amber-100 text-sm mt-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight">Vendor Dashboard</h2>
+              <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400/20 text-[#febd69] border border-amber-400/30">
+                Verified Store
+              </span>
+            </div>
+            <p className="text-slate-300 text-sm">
               Welcome back, {user.name} — your store is active and live on ShopForge
             </p>
           </div>
@@ -122,21 +127,21 @@ export default function VendorDashboardPage() {
           </Link>
 
           <Link
-            href="/user/products"
-            className="flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group"
+            href="/"
+            className="flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
                 <ShoppingBag size={20} />
               </div>
               <div>
-                <p className="font-semibold text-slate-800 text-sm group-hover:text-emerald-600 transition-colors">
-                  Marketplace
+                <p className="font-semibold text-slate-800 text-sm group-hover:text-amber-700 transition-colors">
+                  Storefront
                 </p>
-                <p className="text-xs text-slate-400">Browse all catalog</p>
+                <p className="text-xs text-slate-400">Browse public store</p>
               </div>
             </div>
-            <ArrowRight size={16} className="text-slate-400 group-hover:text-emerald-600 transition-colors" />
+            <ArrowRight size={16} className="text-slate-400 group-hover:text-amber-700 transition-colors" />
           </Link>
         </div>
       </div>

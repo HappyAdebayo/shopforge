@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import { Loader2, Mail, Lock, User, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { getErrorMessage } from "@/lib/utils";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
@@ -36,15 +37,14 @@ export default function SignupPage() {
       await signup(data);
       setDone(true);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to create account";
+      const msg = getErrorMessage(err, "Failed to create account");
       setServerError(msg);
     }
   };
 
   if (done) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#0d1117] via-[#131921] to-[#0d1117] flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center">
           <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle size={28} className="text-emerald-600" />
@@ -57,7 +57,7 @@ export default function SignupPage() {
           </p>
           <Link
             href="/login"
-            className="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg text-sm text-center transition-colors"
+            className="block w-full bg-[#febd69] hover:bg-[#f3a847] text-slate-900 font-semibold py-2.5 rounded-lg text-sm text-center transition-colors shadow-sm"
           >
             Go to Login
           </Link>
@@ -67,12 +67,12 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0d1117] via-[#131921] to-[#0d1117] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center font-bold text-white text-lg">
+            <div className="w-10 h-10 bg-[#febd69] rounded-xl flex items-center justify-center font-bold text-slate-900 text-lg">
               SF
             </div>
             <span className="text-white font-bold text-2xl tracking-tight">
@@ -103,7 +103,7 @@ export default function SignupPage() {
                   {...register("name")}
                   placeholder="John Doe"
                   autoComplete="name"
-                  className={`w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  className={`w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-[#febd69] ${
                     errors.name ? "border-red-400 bg-red-50" : "border-slate-300"
                   }`}
                 />
@@ -130,7 +130,7 @@ export default function SignupPage() {
                   type="email"
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className={`w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  className={`w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-[#febd69] ${
                     errors.email
                       ? "border-red-400 bg-red-50"
                       : "border-slate-300"
@@ -159,7 +159,7 @@ export default function SignupPage() {
                   type={showPass ? "text" : "password"}
                   placeholder="Min. 6 characters"
                   autoComplete="new-password"
-                  className={`w-full pl-9 pr-10 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  className={`w-full pl-9 pr-10 py-2.5 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-[#febd69] ${
                     errors.password
                       ? "border-red-400 bg-red-50"
                       : "border-slate-300"
@@ -190,7 +190,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-medium py-3 rounded-lg text-sm transition-colors mt-2"
+              className="w-full flex items-center justify-center gap-2 bg-[#febd69] hover:bg-[#f3a847] disabled:opacity-60 text-slate-900 font-semibold py-3 rounded-lg text-sm transition-colors mt-2 shadow-sm"
             >
               {isSubmitting ? (
                 <>
@@ -207,7 +207,7 @@ export default function SignupPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-indigo-600 font-medium hover:underline"
+              className="text-[#c45500] font-medium hover:underline"
             >
               Sign in
             </Link>

@@ -23,6 +23,17 @@ export const vendorService = {
     };
   },
 
+  async getMyApplication(): Promise<{
+    message: string;
+    data: { application: VendorApplication | null };
+  }> {
+    const res = await vendorApi.get<{
+      message: string;
+      data: { application: VendorApplication | null };
+    }>("/api/vendors/applications/my");
+    return res.data;
+  },
+
   async getApplications(page = 1, limit = 50): Promise<ApplicationsResponse> {
     const res = await vendorApi.get<ApplicationsResponse>(
       `/api/vendors/applications?page=${page}&limit=${limit}`

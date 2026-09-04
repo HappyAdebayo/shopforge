@@ -92,26 +92,26 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 rounded-3xl p-6 lg:p-8 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#131921] border border-slate-800 rounded-3xl p-6 lg:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 bg-white/15 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 bg-[#febd69]/15 border border-[#febd69]/30 text-[#febd69] px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
             <ShieldCheck size={14} />
             Admin Catalog Inspection
           </div>
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">All Products Overview</h1>
-          <p className="text-rose-100 text-sm mt-1 max-w-2xl">
+          <p className="text-slate-300 text-sm mt-1 max-w-2xl">
             Administrative view of all vendor listings. Inspect stock levels, pricing, category, and vendor details.
           </p>
         </div>
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 flex items-center gap-4 self-start md:self-auto">
+        <div className="bg-[#232f3e] rounded-2xl p-4 border border-slate-700 flex items-center gap-4 self-start md:self-auto shadow-inner">
           <div>
-            <p className="text-xs text-rose-100 uppercase tracking-wider font-semibold">Total Listed</p>
-            <p className="text-2xl font-bold">{loading ? "..." : totalItems}</p>
+            <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Listed</p>
+            <p className="text-2xl font-black text-[#febd69]">{loading ? "..." : totalItems}</p>
           </div>
-          <div className="w-px h-8 bg-white/20" />
+          <div className="w-px h-8 bg-slate-700" />
           <div>
-            <p className="text-xs text-rose-100 uppercase tracking-wider font-semibold">Categories</p>
-            <p className="text-2xl font-bold">{categories.length}</p>
+            <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Categories</p>
+            <p className="text-2xl font-black text-white">{categories.length}</p>
           </div>
         </div>
       </div>
@@ -125,28 +125,28 @@ export default function AdminProductsPage() {
             placeholder="Search products by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#febd69] focus:border-[#febd69] shadow-sm"
           />
         </div>
         <button
           onClick={() => fetchProducts()}
           disabled={loading}
-          className="flex items-center justify-center gap-2 text-sm px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium bg-white shadow-sm transition-colors"
+          className="flex items-center justify-center gap-2 text-sm px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium bg-white shadow-sm transition-colors"
         >
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          <RefreshCw size={14} className={loading ? "animate-spin text-[#f3a847]" : "text-slate-500"} />
           Refresh
         </button>
       </div>
 
       {/* Category Pills */}
       {categories.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
           <button
             onClick={() => setSelectedCategory(null)}
             className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               selectedCategory === null
-                ? "bg-rose-600 text-white shadow-sm"
-                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                ? "bg-[#131921] text-[#febd69] border border-[#131921] shadow-sm"
+                : "bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50"
             }`}
           >
             All Categories
@@ -157,8 +157,8 @@ export default function AdminProductsPage() {
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 selectedCategory === cat.id
-                  ? "bg-rose-600 text-white shadow-sm"
-                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  ? "bg-[#131921] text-[#febd69] border border-[#131921] shadow-sm"
+                  : "bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50"
               }`}
             >
               {cat.name}
@@ -180,7 +180,7 @@ export default function AdminProductsPage() {
       {/* Table */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <div className="w-9 h-9 border-4 border-rose-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-9 h-9 border-4 border-[#febd69] border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-500">Loading catalog inventory...</p>
         </div>
       ) : products.length === 0 ? (
@@ -195,7 +195,7 @@ export default function AdminProductsPage() {
           {(search || selectedCategory) && (
             <button
               onClick={() => { setSearch(""); setSelectedCategory(null); }}
-              className="text-xs text-rose-600 font-semibold hover:underline mt-1"
+              className="text-xs text-[#007185] font-semibold hover:underline mt-1"
             >
               Clear filters
             </button>
@@ -203,9 +203,9 @@ export default function AdminProductsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto scrollbar-hide">
             <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
+              <thead className="bg-[#232f3e] text-slate-200 font-semibold text-xs uppercase tracking-wider border-b border-slate-700">
                 <tr>
                   <th className="px-6 py-4">Product</th>
                   <th className="px-6 py-4">Category</th>
@@ -252,13 +252,13 @@ export default function AdminProductsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1 text-xs text-amber-800 font-medium bg-amber-50 border border-amber-200/60 px-2.5 py-1 rounded-md">
-                          <Store size={12} className="text-amber-600" />
+                        <span className="inline-flex items-center gap-1 text-xs text-amber-900 font-semibold bg-amber-50 border border-amber-200/80 px-2.5 py-1 rounded-md">
+                          <Store size={12} className="text-amber-700" />
                           Vendor #{product.vendorId}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-semibold text-slate-900">
-                        ${Number(product.price).toFixed(2)}
+                      <td className="px-6 py-4 font-bold text-slate-900">
+                        ₦{Number(product.price).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`font-semibold ${product.stock === 0 ? "text-red-500" : product.stock < 10 ? "text-amber-600" : "text-slate-700"}`}>
@@ -274,14 +274,14 @@ export default function AdminProductsPage() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => setSelectedProduct(product)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-medium transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#232f3e] text-[#febd69] hover:bg-[#131921] text-xs font-semibold transition-colors shadow-sm"
                           >
                             <Eye size={14} />
                             Inspect
                           </button>
                           <Link
                             href={`/admin/products/${product.id}`}
-                            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-[#007185] hover:bg-slate-100 rounded-lg transition-colors"
                             title="Full detail view"
                           >
                             <ExternalLink size={15} />
@@ -299,12 +299,12 @@ export default function AdminProductsPage() {
 
       {/* Inspect Modal */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-sm z-10">
               <div className="flex items-center gap-2">
-                <span className="bg-rose-100 text-rose-700 text-xs font-bold px-2.5 py-1 rounded-lg">ADMIN INSPECT</span>
+                <span className="bg-[#131921] text-[#febd69] text-xs font-bold px-2.5 py-1 rounded-lg">ADMIN INSPECT</span>
                 <h3 className="font-bold text-slate-900 text-lg">Product Details</h3>
               </div>
               <button
@@ -328,7 +328,7 @@ export default function AdminProductsPage() {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img.imageUrl} alt={`preview ${idx + 1}`} className="w-full h-full object-cover" />
                         {img.isPrimary && (
-                          <span className="absolute bottom-1.5 left-1.5 bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                          <span className="absolute bottom-1.5 left-1.5 bg-[#131921] text-[#febd69] text-[10px] font-bold px-1.5 py-0.5 rounded">
                             Primary
                           </span>
                         )}
@@ -346,13 +346,13 @@ export default function AdminProductsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {[
                   { label: "Product ID", value: `#${selectedProduct.id}`, color: "text-slate-800" },
-                  { label: "Vendor ID", value: `Vendor #${selectedProduct.vendorId}`, color: "text-amber-700" },
+                  { label: "Vendor ID", value: `Vendor #${selectedProduct.vendorId}`, color: "text-amber-800" },
                   {
                     label: "Category",
                     value: categories.find((c) => c.id === selectedProduct.categoryId)?.name || `#${selectedProduct.categoryId}`,
                     color: "text-indigo-700",
                   },
-                  { label: "Price", value: `$${Number(selectedProduct.price).toFixed(2)}`, color: "text-slate-900" },
+                  { label: "Price", value: `₦${Number(selectedProduct.price).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`, color: "text-slate-900" },
                   {
                     label: "Stock",
                     value: `${selectedProduct.stock} units`,
@@ -401,14 +401,14 @@ export default function AdminProductsPage() {
             <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
               <Link
                 href={`/admin/products/${selectedProduct.id}`}
-                className="text-xs text-rose-600 hover:text-rose-700 font-semibold flex items-center gap-1"
+                className="text-xs text-[#007185] hover:text-[#c45500] font-semibold flex items-center gap-1"
                 onClick={() => setSelectedProduct(null)}
               >
                 Open Full View <ExternalLink size={13} />
               </Link>
               <button
                 onClick={() => setSelectedProduct(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-medium transition-colors"
+                className="px-4 py-2 bg-[#131921] hover:bg-[#232f3e] text-white rounded-xl text-xs font-semibold transition-colors shadow-sm"
               >
                 Close
               </button>

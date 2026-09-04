@@ -14,7 +14,10 @@ import {
   XCircle,
   FileText,
   Clock,
+  ShoppingBag,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import { useNotification } from "@/hooks/useNotification";
 import type { Notification, NotificationType } from "@/types";
 
@@ -38,6 +41,14 @@ const getNotificationIcon = (type: NotificationType) => {
       return <CheckCircle2 size={16} className="text-emerald-600" />;
     case "vendor_application_rejected":
       return <XCircle size={16} className="text-rose-600" />;
+    case "sale_made":
+      return <ShoppingBag size={16} className="text-amber-600" />;
+    case "order_confirmed":
+      return <CheckCircle2 size={16} className="text-emerald-600" />;
+    case "stock_update":
+      return <Store size={16} className="text-blue-600" />;
+    case "payment_failed":
+      return <XCircle size={16} className="text-rose-600" />;
     default:
       return <Bell size={16} className="text-indigo-600" />;
   }
@@ -59,6 +70,8 @@ const formatTimeAgo = (dateStr?: string) => {
 };
 
 export default function NotificationDropdown() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead, fetchNotifications } =
     useNotification();
@@ -94,6 +107,10 @@ export default function NotificationDropdown() {
     if (!notif.isRead) {
       markAsRead(notif.id);
     }
+    if (notif.type === "vendor_application_submitted" && user?.role === "admin") {
+      router.push("/admin/applications");
+      setIsOpen(false);
+    }
   };
 
   return (
@@ -104,8 +121,8 @@ export default function NotificationDropdown() {
         aria-label="Notifications"
         className={`relative p-2 rounded-full transition-colors ${
           isOpen
-            ? "bg-indigo-50 text-indigo-600"
-            : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+            ? "bg-white/20 text-[#febd69]"
+            : "text-slate-300 hover:bg-white/10 hover:text-white"
         }`}
       >
         <Bell size={19} />

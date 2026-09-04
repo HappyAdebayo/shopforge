@@ -215,7 +215,7 @@ export default function ProductDetailPage() {
             {/* Price */}
             <div className="flex items-baseline gap-3 pt-1">
               <span className="text-3xl lg:text-4xl font-extrabold text-indigo-600">
-                ${Number(product.price).toFixed(2)}
+                ₦{Number(product.price).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
               </span>
               <span className="text-xs text-slate-400">Taxes included</span>
             </div>

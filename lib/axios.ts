@@ -31,6 +31,31 @@ export const notificationApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// Cart service axios instance — uses Next.js rewrite proxy to avoid CORS
+export const cartApi = axios.create({
+  baseURL: typeof window !== "undefined" ? "" : (process.env.NEXT_PUBLIC_CART_API_URL || "http://localhost:3006"),
+  headers: { "Content-Type": "application/json" },
+});
+
+// Order service axios instance — uses Next.js rewrite proxy to avoid CORS
+export const orderApi = axios.create({
+  baseURL: typeof window !== "undefined" ? "" : (process.env.NEXT_PUBLIC_ORDER_API_URL || "http://localhost:3007"),
+  headers: { "Content-Type": "application/json" },
+});
+
+// Payment service axios instance — uses Next.js rewrite proxy to avoid CORS
+export const paymentApi = axios.create({
+  baseURL: typeof window !== "undefined" ? "" : (process.env.NEXT_PUBLIC_PAYMENT_API_URL || "http://localhost:3008"),
+  headers: { "Content-Type": "application/json" },
+});
+
+// Public product/category API — no auth token; used by the public storefront
+export const publicProductApi = axios.create({
+  baseURL: typeof window !== "undefined" ? "" : (process.env.NEXT_PUBLIC_PRODUCT_API_URL || "http://localhost:3003"),
+  headers: { "Content-Type": "application/json" },
+});
+
+
 // Attach Authorization header to vendor requests
 vendorApi.interceptors.request.use((config) => {
   const token = tokenStorage.getAccessToken();
@@ -67,6 +92,33 @@ notificationApi.interceptors.request.use((config) => {
   return config;
 });
 
+// Attach Authorization header to cart requests
+cartApi.interceptors.request.use((config) => {
+  const token = tokenStorage.getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Attach Authorization header to order requests
+orderApi.interceptors.request.use((config) => {
+  const token = tokenStorage.getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Attach Authorization header to payment requests
+paymentApi.interceptors.request.use((config) => {
+  const token = tokenStorage.getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Auto-refresh token on 401
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -91,7 +143,7 @@ const setupAuthRefreshInterceptor = (apiInstance: typeof vendorApi) => {
     async (error) => {
       const originalRequest = error.config;
 
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -115,12 +167,18 @@ const setupAuthRefreshInterceptor = (apiInstance: typeof vendorApi) => {
 
         try {
           const res = await authApi.post("/api/auth/refresh", { refreshToken });
-          const { token, refreshToken: newRefreshToken } = res.data.data;
+          const { token, refreshToken: newRefreshToken, user } = res.data.data;
           tokenStorage.setTokens(token, newRefreshToken);
+          if (user) {
+            tokenStorage.setUser(user);
+          }
           vendorApi.defaults.headers.common.Authorization = `Bearer ${token}`;
           productApi.defaults.headers.common.Authorization = `Bearer ${token}`;
           callApi.defaults.headers.common.Authorization = `Bearer ${token}`;
           notificationApi.defaults.headers.common.Authorization = `Bearer ${token}`;
+          cartApi.defaults.headers.common.Authorization = `Bearer ${token}`;
+          orderApi.defaults.headers.common.Authorization = `Bearer ${token}`;
+          paymentApi.defaults.headers.common.Authorization = `Bearer ${token}`;
           processQueue(null, token);
           return apiInstance(originalRequest);
         } catch (refreshError) {
@@ -142,4 +200,6 @@ setupAuthRefreshInterceptor(vendorApi);
 setupAuthRefreshInterceptor(productApi);
 setupAuthRefreshInterceptor(callApi);
 setupAuthRefreshInterceptor(notificationApi);
-
+setupAuthRefreshInterceptor(cartApi);
+setupAuthRefreshInterceptor(orderApi);
+setupAuthRefreshInterceptor(paymentApi);

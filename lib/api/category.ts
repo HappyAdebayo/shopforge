@@ -1,5 +1,16 @@
-import { productApi } from "../axios";
+import { productApi, publicProductApi } from "../axios";
 import type { Category, CreateCategoryFormData } from "@/types";
+
+// Public category service – no auth token; used by storefront
+export const publicCategoryService = {
+  async getAll(): Promise<Category[]> {
+    const res = await publicProductApi.get<{
+      message: string;
+      data: Category[];
+    }>("/api/categories");
+    return res.data.data;
+  },
+};
 
 export const categoryService = {
   async getAll(): Promise<Category[]> {

@@ -207,7 +207,7 @@ export default function ProductsBrowsePage() {
                     </div>
                   )}
                   <span className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-slate-800 font-bold text-xs px-2.5 py-1 rounded-lg shadow-sm">
-                    ${Number(product.price).toFixed(2)}
+                    ₦{Number(product.price).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
 

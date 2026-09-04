@@ -49,26 +49,6 @@ const navItems: NavItem[] = [
     roles: ["admin"],
   },
 
-  // User Links
-  {
-    label: "Dashboard",
-    href: "/user",
-    icon: <LayoutDashboard size={18} />,
-    roles: ["user"],
-  },
-  {
-    label: "Browse Products",
-    href: "/user/products",
-    icon: <ShoppingBag size={18} />,
-    roles: ["user"],
-  },
-  {
-    label: "Become a Vendor",
-    href: "/user/apply",
-    icon: <Store size={18} />,
-    roles: ["user"],
-  },
-
   // Vendor Links
   {
     label: "Store Overview",
@@ -88,12 +68,14 @@ const navItems: NavItem[] = [
     icon: <PlusCircle size={18} />,
     roles: ["vendor"],
   },
-  {
-    label: "Browse Catalog",
-    href: "/user/products",
-    icon: <Store size={18} />,
-    roles: ["vendor"],
-  },
+
+  // Shared Link to Storefront
+  // {
+  //   label: "Customer Storefront",
+  //   href: "/",
+  //   icon: <Store size={18} />,
+  //   roles: ["admin", "vendor"],
+  // },
 ];
 
 interface SidebarProps {
@@ -128,19 +110,22 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed top-0 left-0 h-full w-64 bg-slate-900 text-white z-30 flex flex-col transition-transform duration-300",
+          "fixed top-0 left-0 h-full w-64 bg-[#131921] text-white z-30 flex flex-col border-r border-[#232f3e] transition-transform duration-300",
           open ? "translate-x-0" : "-translate-x-full",
           "lg:translate-x-0 lg:static lg:z-auto"
         )}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-700">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-sm">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#232f3e]">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#febd69] rounded-lg flex items-center justify-center font-black text-slate-900 text-sm shadow-sm">
               SF
             </div>
-            <span className="font-bold text-lg tracking-tight">ShopForge</span>
-          </div>
+            <span className="font-bold text-lg tracking-tight text-white flex items-center">
+              ShopForge
+              <span className="text-[#febd69] text-xs ml-0.5">.com</span>
+            </span>
+          </Link>
           <button
             onClick={onClose}
             className="lg:hidden text-slate-400 hover:text-white"
@@ -153,13 +138,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         <div className="px-6 py-3">
           <span
             className={cn(
-              "text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md",
+              "text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md",
               effectiveRole === "admin" &&
-                "bg-red-900/60 text-red-300 border border-red-800/50",
+                "bg-red-500/20 text-red-300 border border-red-500/30",
               effectiveRole === "vendor" &&
-                "bg-amber-900/60 text-amber-300 border border-amber-800/50",
+                "bg-amber-400/20 text-[#febd69] border border-amber-400/30",
               effectiveRole === "user" &&
-                "bg-indigo-900/60 text-indigo-300 border border-indigo-800/50"
+                "bg-slate-700 text-slate-300 border border-slate-600"
             )}
           >
             {effectiveRole} panel
@@ -183,8 +168,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                    ? "bg-[#232f3e] text-[#febd69] font-bold border-l-4 border-[#febd69] shadow-sm"
+                    : "text-slate-300 hover:bg-[#232f3e] hover:text-white"
                 )}
               >
                 {item.icon}
@@ -197,13 +182,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* User info at bottom */}
         {user && (
-          <div className="px-4 py-4 border-t border-slate-700">
+          <div className="px-4 py-4 border-t border-[#232f3e] bg-[#0c1017]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold uppercase">
+              <div className="w-9 h-9 rounded-full bg-[#febd69] text-slate-900 flex items-center justify-center text-sm font-black uppercase">
                 {user.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user.name}</p>
+                <p className="text-sm font-bold text-white truncate">{user.name}</p>
                 <p className="text-xs text-slate-400 truncate">{user.email}</p>
               </div>
             </div>

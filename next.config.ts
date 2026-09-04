@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**" },
+      { protocol: "http", hostname: "**" },
+    ],
+  },
   async rewrites() {
     return [
       {
@@ -26,6 +32,18 @@ const nextConfig: NextConfig = {
       {
         source: "/api/notifications/:path*",
         destination: "http://localhost:3005/notifications/:path*",
+      },
+      {
+        source: "/api/cart/:path*",
+        destination: "http://localhost:3006/cart/:path*",
+      },
+      {
+        source: "/api/orders/:path*",
+        destination: "http://localhost:3007/orders/:path*",
+      },
+      {
+        source: "/api/payments/:path*",
+        destination: "http://localhost:3008/payments/:path*",
       },
     ];
   },

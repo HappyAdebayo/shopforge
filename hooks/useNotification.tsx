@@ -103,7 +103,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     socket.on("connect", joinRooms);
 
     const handleNewNotification = (notif: Notification) => {
-      console.log("[Notification Hook] New notification received:", notif);
+      // Only process notifications targeted for this user
+      if (notif.userId && notif.userId !== user.id) {
+        return;
+      }
+
+      console.log("[Notification Hook] New notification received in real time:", notif);
       setNotifications((prev) => [notif, ...prev.filter((n) => n.id !== notif.id)]);
       setUnreadCount((prev) => prev + 1);
 
