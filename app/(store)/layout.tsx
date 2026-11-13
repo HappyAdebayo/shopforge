@@ -38,8 +38,12 @@ function AmazonNavbar() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const searchWrapperRef = useRef<HTMLDivElement>(null);
+
+  // Suppress cart badge until client hydration is complete
+  useEffect(() => { setMounted(true); }, []);
 
   // Debounced product suggestions
   const { suggestions, isLoading: suggestionsLoading, clear: clearSuggestions } =
@@ -400,9 +404,11 @@ function AmazonNavbar() {
             >
               <div className="relative">
                 <ShoppingCart size={28} className="text-white" />
-                <span className="absolute -top-1 left-3.5 bg-[#febd69] text-slate-900 text-xs font-black rounded-full min-w-5 h-5 px-1 flex items-center justify-center leading-none">
-                  {itemCount > 99 ? "99+" : itemCount}
-                </span>
+                {mounted && itemCount > 0 && (
+                  <span className="absolute -top-1 left-3.5 bg-[#febd69] text-slate-900 text-xs font-black rounded-full min-w-5 h-5 px-1 flex items-center justify-center leading-none">
+                    {itemCount > 99 ? "99+" : itemCount}
+                  </span>
+                )}
               </div>
               <span className="hidden sm:inline-block text-xs font-bold text-white mt-2">
                 Cart

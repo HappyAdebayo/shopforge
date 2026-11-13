@@ -143,8 +143,13 @@ export function GuestCartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // For logged-in users show the server count; for guests use local state
-  const itemCount = user ? serverCartCount : items.reduce((sum, i) => sum + i.quantity, 0);
+  // For logged-in users show the server count; for guests use local state.
+  // Return 0 until hydrated so SSR and initial client render always match.
+  const itemCount = !hydrated
+    ? 0
+    : user
+    ? serverCartCount
+    : items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
     <GuestCartContext.Provider

@@ -13,9 +13,11 @@ import {
 import { publicProductService } from "@/lib/api/product";
 import { reviewService, type Review, type ReviewStats } from "@/lib/api/review";
 import { cartService } from "@/lib/api/cart";
+import { recommendationService } from "@/lib/api/recommendations";
 import { useAuth } from "@/hooks/useAuth";
 import { useGuestCart } from "@/hooks/useGuestCart";
 import type { Product } from "@/types";
+import axios from "axios";
 
 function RecommendedCard({ product }: { product: Product }) {
   const primaryImg =
@@ -63,7 +65,7 @@ export default function ProductDetailPage() {
   const productId = params?.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
-  const [related, setRelated] = useState<Product[]>([]);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -117,11 +119,10 @@ export default function ProductDetailPage() {
       const primary = data.images?.find((i) => i.isPrimary)?.imageUrl ?? data.images?.[0]?.imageUrl ?? null;
       setSelectedImage(primary);
 
-      if (data.categoryId) {
-        publicProductService.getRelated(data.categoryId, data.id, 6)
-          .then((res) => setRelated(res))
-          .catch(() => {});
-      }
+      // Fetch similar recommendations
+      recommendationService.getSimilar(Number(productId) || productId, 8)
+        .then((res) => setSimilarProducts(res))
+        .catch(() => {});
     } catch {
       setError("Product not found");
     } finally {
@@ -134,6 +135,17 @@ export default function ProductDetailPage() {
     fetchReviews();
   }, [fetchProduct, fetchReviews]);
 
+  // Fire view interaction event when product and user are available
+  useEffect(() => {
+    if (product && user) {
+      axios.post("/api/interactions", {
+        productId: product.id,
+        event: "view",
+        userId: user.id,
+      }).catch(() => {});
+    }
+  }, [product, user]);
+
   const handleAddToCart = async () => {
     if (!product || adding) return;
     setAdding(true);
@@ -141,6 +153,11 @@ export default function ProductDetailPage() {
       if (user) {
         const cart = await cartService.addItem(product.id, quantity);
         await refreshServerCount(cart.itemCount);
+        axios.post("/api/interactions", {
+          productId: product.id,
+          event: "addtocart",
+          userId: user.id,
+        }).catch(() => {});
       } else {
         addItem(product, quantity);
       }
@@ -652,20 +669,24 @@ export default function ProductDetailPage() {
         </div>
       </section>
 
-      {/* Recommended section */}
-      {related.length > 0 && (
-        <section className="border-t border-slate-200 pt-10">
-          <div className="flex items-center justify-between mb-6">
+      {/* Customers Also Viewed Section */}
+      {similarProducts.length > 0 && (
+        <section className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm mt-8">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-black text-slate-900">You may also like</h2>
-              <p className="text-sm text-slate-500 mt-0.5">More from {product.category?.name ?? "this category"}</p>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                Customers Also Viewed
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Related selections recommended based on shopper browsing patterns
+              </p>
             </div>
-            <Link href={`/?category=${product.categoryId}`} className="text-sm text-indigo-600 hover:underline font-medium flex items-center gap-1">
-              See all <ChevronRight size={14} />
-            </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4">
-            {related.map((p) => (
+          <div
+            className="flex gap-4 overflow-x-auto scrollbar-hide py-1 scroll-smooth"
+            style={{ scrollSnapType: "x mandatory" }}
+          >
+            {similarProducts.map((p) => (
               <RecommendedCard key={p.id} product={p} />
             ))}
           </div>

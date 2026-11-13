@@ -20,9 +20,11 @@ import {
 import { publicProductService } from "@/lib/api/product";
 import { publicCategoryService } from "@/lib/api/category";
 import { cartService } from "@/lib/api/cart";
+import { recommendationService } from "@/lib/api/recommendations";
 import { useAuth } from "@/hooks/useAuth";
 import { useGuestCart } from "@/hooks/useGuestCart";
-import type { Product, Category } from "@/types";
+import type { Product, Category, User } from "@/types";
+import axios from "axios";
 
 /* ─── Hero Slide Data ────────────────────────────────────────────────── */
 const HERO_SLIDES = [
@@ -57,6 +59,131 @@ const HERO_SLIDES = [
     accentColor: "#38bdf8",
   },
 ];
+
+/* ─── Product Card with View Tracking ─────────────────────────────────── */
+function CarouselProductCard({
+  product,
+  isAdded,
+  isAdding,
+  onAddToCart,
+  user,
+}: {
+  product: Product;
+  isAdded: boolean;
+  isAdding: boolean;
+  onAddToCart: (e: React.MouseEvent, product: Product) => void;
+  user: User | null;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const trackedViewRef = useRef(false);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el || trackedViewRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !trackedViewRef.current) {
+            trackedViewRef.current = true;
+            if (user?.id) {
+              axios
+                .post("/api/interactions", {
+                  productId: product.id,
+                  event: "view",
+                  userId: user.id,
+                })
+                .catch(() => {});
+            }
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [product.id, user?.id]);
+
+  const primaryImg =
+    product.images?.find((i) => i.isPrimary)?.imageUrl ??
+    product.images?.[0]?.imageUrl;
+  const price = Number(product.price);
+  const inStock = product.stock > 0;
+
+  return (
+    <div
+      ref={cardRef}
+      className="shrink-0 flex flex-col justify-between border border-slate-200/80 rounded-xl p-3 hover:shadow-md hover:border-[#febd69] transition-all bg-white"
+      style={{ scrollSnapAlign: "start" }}
+    >
+      <Link href={`/products/${product.id}`} className="block group/item">
+        <div className="relative aspect-square w-full bg-[#f8f9fa] rounded-lg overflow-hidden mb-2">
+          {primaryImg ? (
+            <Image
+              src={primaryImg}
+              alt={product.name}
+              fill
+              className="object-contain p-2 group-hover/item:scale-105 transition-transform duration-300"
+              sizes="220px"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+              <Package size={36} />
+            </div>
+          )}
+          {/* Deal badge */}
+          <div className="absolute top-2 left-2 bg-[#cc0c39] text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">
+            Deal
+          </div>
+        </div>
+
+        <p className="text-xs font-semibold text-slate-800 line-clamp-2 group-hover/item:text-[#c45500] leading-snug mb-1">
+          {product.name}
+        </p>
+
+        <div className="flex items-center gap-1 mb-1">
+          <div className="flex items-center text-[#de7921]">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star key={star} size={11} className="fill-[#de7921]" />
+            ))}
+          </div>
+          <span className="text-[10px] text-slate-500 font-medium">4.8</span>
+        </div>
+
+        <div className="flex items-baseline gap-0.5">
+          <span className="text-[11px] font-bold text-slate-900">₦</span>
+          <span className="text-base sm:text-lg font-black text-slate-900 leading-none">
+            {Math.floor(price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </span>
+          <span className="text-[11px] font-bold text-slate-900">
+            {(price % 1).toFixed(2).substring(1)}
+          </span>
+        </div>
+
+        <p className="text-[11px] text-emerald-700 font-medium mt-0.5">
+          {inStock ? "In Stock" : "Unavailable"}
+        </p>
+      </Link>
+
+      <button
+        onClick={(e) => onAddToCart(e, product)}
+        disabled={!inStock || isAdding}
+        className={`w-full mt-2 py-1.5 px-2 rounded-full text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1 ${
+          isAdded
+            ? "bg-emerald-600 text-white"
+            : inStock
+            ? "bg-[#ffd814] hover:bg-[#f7ca00] text-slate-900 border border-[#fcd200] active:scale-[0.98]"
+            : "bg-slate-200 text-slate-400 cursor-not-allowed"
+        }`}
+      >
+        <ShoppingCart size={12} />
+        {isAdded ? "Added!" : isAdding ? "…" : "Add to Cart"}
+      </button>
+    </div>
+  );
+}
 
 /* ─── Product Carousel Component (Supports 1 or 2 Rows) ─────────────── */
 function ProductCarousel({
@@ -98,6 +225,14 @@ function ProductCarousel({
       if (user) {
         const cart = await cartService.addItem(product.id, 1);
         await refreshServerCount(cart.itemCount);
+        // Track addtocart interaction
+        axios
+          .post("/api/interactions", {
+            productId: product.id,
+            event: "addtocart",
+            userId: user.id,
+          })
+          .catch(() => {});
       } else {
         addItem(product, 1);
       }
@@ -153,87 +288,16 @@ function ProductCarousel({
           }
           style={{ scrollSnapType: "x mandatory" }}
         >
-          {products.map((product) => {
-            const primaryImg =
-              product.images?.find((i) => i.isPrimary)?.imageUrl ??
-              product.images?.[0]?.imageUrl;
-            const price = Number(product.price);
-            const inStock = product.stock > 0;
-            const isAdded = addedId === product.id;
-            const isAdding = addingId === product.id;
-
-            return (
-              <div
-                key={product.id}
-                className="shrink-0 flex flex-col justify-between border border-slate-200/80 rounded-xl p-3 hover:shadow-md hover:border-[#febd69] transition-all bg-white"
-                style={{ scrollSnapAlign: "start" }}
-              >
-                <Link href={`/products/${product.id}`} className="block group/item">
-                  <div className="relative aspect-square w-full bg-[#f8f9fa] rounded-lg overflow-hidden mb-2">
-                    {primaryImg ? (
-                      <Image
-                        src={primaryImg}
-                        alt={product.name}
-                        fill
-                        className="object-contain p-2 group-hover/item:scale-105 transition-transform duration-300"
-                        sizes="220px"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-slate-300">
-                        <Package size={36} />
-                      </div>
-                    )}
-                    {/* Deal badge */}
-                    <div className="absolute top-2 left-2 bg-[#cc0c39] text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">
-                      Deal
-                    </div>
-                  </div>
-
-                  <p className="text-xs font-semibold text-slate-800 line-clamp-2 group-hover/item:text-[#c45500] leading-snug mb-1">
-                    {product.name}
-                  </p>
-
-                  <div className="flex items-center gap-1 mb-1">
-                    <div className="flex items-center text-[#de7921]">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} size={11} className="fill-[#de7921]" />
-                      ))}
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-medium">4.8</span>
-                  </div>
-
-                  <div className="flex items-baseline gap-0.5">
-                    <span className="text-[11px] font-bold text-slate-900">₦</span>
-                    <span className="text-base sm:text-lg font-black text-slate-900 leading-none">
-                      {Math.floor(price).toLocaleString("en-NG")}
-                    </span>
-                    <span className="text-[11px] font-bold text-slate-900">
-                      {(price % 1).toFixed(2).substring(1)}
-                    </span>
-                  </div>
-
-                  <p className="text-[11px] text-emerald-700 font-medium mt-0.5">
-                    {inStock ? "In Stock" : "Unavailable"}
-                  </p>
-                </Link>
-
-                <button
-                  onClick={(e) => handleAddToCart(e, product)}
-                  disabled={!inStock || isAdding}
-                  className={`w-full mt-2 py-1.5 px-2 rounded-full text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1 ${
-                    isAdded
-                      ? "bg-emerald-600 text-white"
-                      : inStock
-                      ? "bg-[#ffd814] hover:bg-[#f7ca00] text-slate-900 border border-[#fcd200] active:scale-[0.98]"
-                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  }`}
-                >
-                  <ShoppingCart size={12} />
-                  {isAdded ? "Added!" : isAdding ? "…" : "Add to Cart"}
-                </button>
-              </div>
-            );
-          })}
+          {products.map((product) => (
+            <CarouselProductCard
+              key={product.id}
+              product={product}
+              isAdded={addedId === product.id}
+              isAdding={addingId === product.id}
+              onAddToCart={handleAddToCart}
+              user={user}
+            />
+          ))}
         </div>
 
         {/* Right scroll arrow */}
@@ -251,6 +315,7 @@ function ProductCarousel({
 
 /* ─── Main Amazon Storefront Page ────────────────────────────────────── */
 export default function StoreHomePage() {
+  const { user } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -271,22 +336,26 @@ export default function StoreHomePage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [cats, prodRes] = await Promise.all([
+        const [cats, prodRes, recs] = await Promise.all([
           publicCategoryService.getAll().catch(() => []),
           publicProductService.getAll({ page: 1, limit: 50 }).catch(() => ({ products: [] })),
+          (user?.id
+            ? recommendationService.getForUser(user.id, 10)
+            : recommendationService.getPopular(10)
+          ).catch(() => []),
         ]);
 
         const prods = prodRes?.products ?? [];
         setCategories(cats);
         setDealsProducts(prods.slice(0, 16));
         setTrendingProducts(prods.slice(4, 20));
-        setFeaturedProducts(prods);
+        setFeaturedProducts(recs && recs.length > 0 ? recs : prods);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [user?.id]);
 
   const slide = HERO_SLIDES[currentSlide];
 
